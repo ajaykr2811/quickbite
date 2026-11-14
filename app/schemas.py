@@ -28,6 +28,7 @@ class MenuItem(MenuItemCreate):
 
 class RestaurantUpdate(BaseModel):
     name: str | None = Field(default=None, min_length=2, max_length=80)
+    rating: float | None = Field(default=None, ge=0, le=5)
     city: str | None = None
     cuisine: str | None = None
     rating: float | None = Field(default=0.0, ge=0, le=5)
