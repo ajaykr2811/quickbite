@@ -31,5 +31,4 @@ class RestaurantUpdate(BaseModel):
     rating: float | None = Field(default=None, ge=0, le=5)
     city: str | None = None
     cuisine: str | None = None
-    rating: float | None = Field(default=0.0, ge=0, le=5)
     operational: bool | None = None
