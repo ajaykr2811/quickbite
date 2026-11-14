@@ -1,6 +1,12 @@
 from fastapi import FastAPI, HTTPException, Query
 
-from app.schemas import MenuItem, MenuItemCreate, Restaurant, RestaurantCreate, RestaurantUpdate
+from app.schemas import (
+    MenuItem,
+    MenuItemCreate,
+    Restaurant,
+    RestaurantCreate,
+    RestaurantUpdate,
+)
 
 app = FastAPI(title="QuickBite API", version="0.1.0")
 
@@ -24,9 +30,14 @@ def get_restaurant_or_404(restaurant_id: int) -> Restaurant:
         raise HTTPException(status_code=404, detail="Restaurant not found")
     return restaurant
 
+
 def ensure_operational(restaurant: Restaurant) -> None:
     if not restaurant.operational:
-        raise HTTPException(status_code=409, detail=f"{restaurant.name} is not operational")
+        raise HTTPException(
+            status_code=409, detail=f"{restaurant.name} is not operational"
+        )
+
+
 # ---------------------------------------------------------------
 # Endpoints
 # ---------------------------------------------------------------
@@ -59,12 +70,12 @@ def list_restaurants(
 
 @app.get("/restaurants/{restaurant_id}", response_model=Restaurant)
 def get_restaurant(restaurant_id: int):
-    restaurant = get_restaurant_or_404(restaurant_id)   
-    ensure_operational(restaurant)  
+    restaurant = get_restaurant_or_404(restaurant_id)
+    ensure_operational(restaurant)
     return restaurant
 
 
-@app.post(  
+@app.post(
     "/restaurants/{restaurant_id}/menu",
     response_model=MenuItem,
     status_code=201,
@@ -87,22 +98,25 @@ def get_menu(restaurant_id: int, veg_only: bool = False):
         items = [i for i in items if i.is_veg]
     return items
 
+
 @app.patch("/restaurants/{restaurant_id}", response_model=RestaurantUpdate)
-def update_restaurant(restaurant_id: int, data:RestaurantUpdate):
+def update_restaurant(restaurant_id: int, data: RestaurantUpdate):
     restaurant = get_restaurant_or_404(restaurant_id)
-    change = data.model_dump(exclude_unset=True,exclude_none=True)
+    change = data.model_dump(exclude_unset=True, exclude_none=True)
     updated = restaurant.model_copy(update=change)
     restaurants[restaurant_id] = updated
     return updated
+
 
 @app.delete("/restaurants/{restaurant_id}", status_code=204)
 def delete_restaurant(restaurant_id: int):
     get_restaurant_or_404(restaurant_id)
     del restaurants[restaurant_id]
-    item_ids = [i.id for i in menu_items.values() 
-                if i.restaurant_id == restaurant_id]
+    item_ids = [i.id for i in menu_items.values() if i.restaurant_id == restaurant_id]
     for item_id in item_ids:
         del menu_items[item_id]
+
+
 # ---------------------------------------------------------------
 # Sample data so /docs has something to show
 # ---------------------------------------------------------------
@@ -114,7 +128,9 @@ def seed():
         RestaurantCreate(name="Bangkok Bites", city="Pune", cuisine="Thai", rating=4.1)
     )
     add_menu_item(spice.id, MenuItemCreate(name="Paneer Tikka", price=260))
-    add_menu_item(spice.id, MenuItemCreate(name="Chicken Biryani", price=320, is_veg=False))
+    add_menu_item(
+        spice.id, MenuItemCreate(name="Chicken Biryani", price=320, is_veg=False)
+    )
     add_menu_item(bangkok.id, MenuItemCreate(name="Green Curry", price=340))
 
 
