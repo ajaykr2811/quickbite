@@ -81,7 +81,8 @@ def get_restaurant(restaurant_id: int):
     status_code=201,
 )
 def add_menu_item(restaurant_id: int, data: MenuItemCreate):
-    get_restaurant_or_404(restaurant_id)
+    restaurant = get_restaurant_or_404(restaurant_id)
+    ensure_operational(restaurant)
     item = MenuItem(
         id=new_id("menu_item"), restaurant_id=restaurant_id, **data.model_dump()
     )
@@ -99,7 +100,7 @@ def get_menu(restaurant_id: int, veg_only: bool = False):
     return items
 
 
-@app.patch("/restaurants/{restaurant_id}", response_model=RestaurantUpdate)
+@app.patch("/restaurants/{restaurant_id}", response_model=Restaurant)
 def update_restaurant(restaurant_id: int, data: RestaurantUpdate):
     restaurant = get_restaurant_or_404(restaurant_id)
     change = data.model_dump(exclude_unset=True, exclude_none=True)
